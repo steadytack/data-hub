@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "strategy": "single",
+  "components": [
+    {
+      "name": "data-hub",
+      "role": "The whole platform as one Compose project: backend API, React front end, Postgres with PostGIS (bronze, silver, gold, catalogue, audit), embedded Airflow with Cosmos and dbt, Airflow metadata database, MCP server, backup and heartbeat (doc 10, CMP-001 to CMP-010, CMP-019, CMP-020). Phase 2 and 3 components (CMP-011 to CMP-018) are not composed yet.",
+      "base": {
+        "id": "CAT-006",
+        "version": "1.4.0"
+      },
+      "modules": [],
+      "assets": [
+        {
+          "id": "CAT-056",
+          "version": "8.30.1",
+          "use": "gitleaks secret scan in CI (SEC-002)"
+        },
+        {
+          "id": "CAT-100",
+          "version": "3.4.0",
+          "use": "Airflow scheduler, DAG processor and API server, local executor (CMP-006); pinned: apache-airflow[postgres]==3.4.0 with constraints-3.4.0/constraints-3.12.txt"
+        },
+        {
+          "id": "CAT-101",
+          "version": "1.16.0",
+          "use": "Cosmos renders each dbt model as an Airflow task (CMP-006); pinned: astronomer-cosmos==1.16.0 under the same constraints"
+        },
+        {
+          "id": "CAT-102",
+          "version": "1.12.7",
+          "use": "dbt-core in its own virtual environment in the Airflow image (CMP-005, DEC-004)"
+        },
+        {
+          "id": "CAT-103",
+          "version": "1.11.0",
+          "use": "dbt-postgres adapter, in dbt's own virtual environment (CMP-005)"
+        },
+        {
+          "id": "CAT-104",
+          "version": "2.3.0",
+          "use": "Official MCP Python SDK for the MCP server, in the backend image (CMP-008)"
+        }
+      ],
+      "configuration": {
+        "set_in": "Git-ignored .env for secrets; YAML in config/ for thresholds, weights, limits, schedules and source links; example files with placeholders only",
+        "names": [
+          "POSTGRES_PASSWORD",
+          "APP_DB_PASSWORD",
+          "PIPELINE_DB_PASSWORD",
+          "AIRFLOW_DB_PASSWORD",
+          "AIRFLOW_API_USER",
+          "AIRFLOW_API_PASSWORD",
+          "AIRFLOW_FERNET_KEY",
+          "JWT_SECRET",
+          "ADMIN_EMAIL",
+          "ADMIN_PASSWORD_HASH",
+          "READONLY_ROLE_PREFIX",
+          "HEARTBEAT_URL"
+        ],
+        "config_files": [
+          "config/trust.yaml",
+          "config/freshness.yaml",
+          "config/limits.yaml",
+          "config/drift.yaml",
+          "config/sources.yaml",
+          "config/mcp.yaml"
+        ],
+        "template_options": "share off; theme on; help guides on; feedback on with problem, suggestion and question stored in the app; heartbeat on (D-006)"
+      },
+      "adaptations": [
+        "Sample sites and surveys domain removed",
+        "Roles become consumer, owner, steward and admin; groups, named grants with expiry, personal access tokens and per-user read-only database logins added",
+        "Database migrations create the bronze, silver, gold, catalogue and audit schemas",
+        "New services in the Compose file: Airflow scheduler, DAG processor and API server (not published), Airflow metadata database, MCP server",
+        "Pipelines package (manifest validator, DAG factory, orchestrator interface, ingest, checks, profiling, scoring), dbt project and GeoPackage module added as custom code",
+        "Template features: Share off, feedback stored rather than emailed (D-006)"
+      ]
+    }
+  ],
+  "links": [
+    {
+      "from": "frontend",
+      "to": "backend",
+      "kind": "http",
+      "what": "JSON API with cookie session (INT-003)"
+    },
+    {
+      "from": "backend",
+      "to": "data-db",
+      "kind": "database",
+      "what": "catalogue reads and writes; previews and exports under the user's read-only login (INT-004)"
+    },
+    {
+      "from": "backend",
+      "to": "airflow",
+      "kind": "http",
+      "what": "orchestrator interface: trigger runs, read run status (INT-005)"
+    },
+    {
+      "from": "airflow",
+      "to": "data-db",
+      "kind": "database",
+      "what": "ingest to bronze, dbt silver and gold through Cosmos, run and check records (INT-006)"
+    },
+    {
+      "from": "airflow",
+      "to": "airflow-db",
+      "kind": "database",
+      "what": "Airflow metadata (INT-010)"
+    },
+    {
+      "from": "airflow",
+      "to": "pipelines-repo",
+      "kind": "file",
+      "what": "manifests and dbt models read by the DAG factory (INT-011)"
+    },
+    {
+      "from": "mcp-server",
+      "to": "data-db",
+      "kind": "database",
+      "what": "read-only SELECT under the token user's login (INT-008)"
+    },
+    {
+      "from": "backup",
+      "to": "data-db",
+      "kind": "database",
+      "what": "nightly dump (INT-012)"
+    }
+  ],
+  "validation": {
+    "status": "not-run"
+  },
+  "limitations": [
+    "Airflow, Cosmos, dbt-core, dbt-postgres and the MCP SDK were approved on a static review and an install check; their own test suites have not run",
+    "Their combination is proven only as installs and imports in clean containers (source/samples/install-check-2026-11-14.md), not as a DAG run",
+    "dbt cannot share Airflow's environment (pathspec conflict); it runs from its own virtual environment",
+    "Spatial performance on the real flood map is unmeasured until EPIC-007",
+    "Phase 2 and 3 components (OGC API server, OData, notifications, Entra, reverse proxy, Copilot agent, lineage store) are not chosen or proven",
+    "Phase 1 connector libraries (HTTP client, Postgres and SQL Server drivers, JSON, Excel and Parquet readers; CAP-026) and the secrets store (CAP-027, Docker secrets) are not chosen, imported or approved (CR-001); needed before EPIC-019 and EPIC-023"
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "slug": "data-hub",
+  "name": "Data Hub (Trusted Data Products)",
+  "kind": "app",
+  "stage": "build",
+  "status": "in-progress",
+  "factory_version": "0.4.0",
+  "updated": "2026-11-16",
+  "template": "web-app",
+  "tier": 2,
+  "versions": {
+    "application_definition": "1.0",
+    "spec": "1.1",
+    "composition": "1.0"
+  },
+  "gates": {
+    "1": {
+      "status": "approved",
+      "date": "2026-11-14",
+      "reply": "1. C, 2. B, 3. A",
+      "version": "1.0"
+    },
+    "2": {
+      "status": "approved",
+      "date": "2026-11-14",
+      "reply": "decision 1.A; 2B; 3. all ok for now",
+      "version": "1.0"
+    },
+    "3": {
+      "status": "not-reached"
+    },
+    "4": {
+      "status": "not-reached"
+    }
+  },
+  "blockers": [],
+  "last_verification": null,
+  "imports": [
+    {
+      "file": "Trusted Data Products Consolidated Spec (v0.5).md",
+      "version": "v0.5",
+      "date": "2026-11-14"
+    },
+    {
+      "file": "Trusted Data Products Scope, Phases and Epics.md",
+      "version": "v0.5-scope",
+      "date": "2026-11-14"
+    },
+    {
+      "file": "Prototype Build Brief 001 Historic Flood Map.md",
+      "version": "v0.5-brief-001",
+      "date": "2026-11-14"
+    }
+  ],
+  "changes": [],
+  "next": "CR-001 applied to the spec (v1.1, 2026-11-16, changes.md). Build in a fresh session (/factory resume data-hub): EPIC-001 foundation (brief slice 0), Tier 2. Gate 2 approved 2026-11-14 (gates/gate-2.md, D-017 to D-019); CAT-100 to CAT-104 approved. Owner, later: Q-001 and Q-002 (pilot products, owners and stewards), Q-004 (network route and read-only account per pilot source) and the BUUK VM (DEC-016) before the Phase 1 release; import and approve the Phase 1 connector libraries (CAP-026) before EPIC-023"
+}
